@@ -54,9 +54,9 @@ Usa el tool `Agent` con `subagent_type=general-purpose`. Cada subagente debe:
 ### Prompt template para subagente
 
 ```
-Eres un subagente del skill narrative-continuity.
+Eres un subagente del skill trama.
 
-Workspace: /tmp/narrative-continuity/<HASH>/
+Workspace: /tmp/trama/<HASH>/
 Tu scope: <RANGO o ENTIDAD>
 
 Tareas:

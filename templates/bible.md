@@ -1,6 +1,6 @@
 # Character Bible — {{TITULO_MANUSCRITO}}
 
-> Generado por narrative-continuity. Editable: añade información que el extractor no detectó, marca aliases en `aliases.tsv`, registra excepciones en `exceptions.tsv`.
+> Generado por Trama. Editable: añade información que el extractor no detectó, marca aliases en `aliases.tsv`, registra excepciones en `exceptions.tsv`.
 
 **Stats:**
 - Palabras: {{WORDS}}

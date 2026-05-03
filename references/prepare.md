@@ -9,10 +9,10 @@ Cada manuscrito vive en su propio workspace para evitar colisiones cuando el usu
 ```bash
 SRC="RUTA_ORIGINAL"
 HASH=$(printf '%s' "$SRC" | shasum -a 1 | cut -c1-12)
-WORK="/tmp/narrative-continuity/$HASH"
+WORK="/tmp/trama/$HASH"
 ```
 
-`/tmp` se borra al reiniciar macOS. Si el usuario va a auditar a lo largo de varios días, sugiérele mover `$WORK` a `~/.narrative-continuity/$HASH` (mismo layout, sin reescribir scripts — son agnósticos del path base).
+`/tmp` se borra al reiniciar macOS. Si el usuario va a auditar a lo largo de varios días, sugiérele mover `$WORK` a `~/.trama/$HASH` (mismo layout, sin reescribir scripts — son agnósticos del path base).
 
 ## Reuso vs reconvertir
 

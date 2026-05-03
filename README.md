@@ -1,6 +1,8 @@
-![Narrative Continuity — auditor de continuidad narrativa para manuscritos](assets/header.png)
+![Trama — auditor de continuidad narrativa para manuscritos](assets/header.png)
 
-# Narrative Continuity
+# Trama
+
+> *Trama* en español tiene doble sentido: el argumento de la historia + el hilo transversal del tejido. Ambos hay que auditar para que la novela sostenga.
 
 Skill de Claude Code / Anthropic que audita manuscritos de novela **existentes** para continuidad, consistencia de personajes, coherencia temporal e hilos narrativos sin resolver. Responde con **citas exactas** (capítulo + línea + texto verbatim). Nunca escribe prosa por ti — es un auditor de solo lectura.
 
@@ -22,7 +24,7 @@ Funciona con manuscritos en español e inglés. Soporta sagas multi-volumen y ma
 | 📁 **Multi-formato** | `.txt`, `.md`, `.docx` (pandoc o python-docx), `.rtf` (pandoc o textutil), o carpetas con varios archivos en orden alfabético. |
 | 🌐 **Bilingüe ES/EN** | Detección automática de idioma (heurística de palabras función). Patrones regex separados para capítulos, marcadores temporales, dialog tags, relaciones, atributos. |
 | 🗺️ **Mapeo línea → capítulo** | Lookup O(log n) vía `chapters.tsv`. Toda cita lleva capítulo + línea para navegación inmediata. |
-| 💾 **Workspace persistente** | `~/.narrative-continuity/<hash>/` por defecto. Sobrevive reboots. Override con `NARRATIVE_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas). |
+| 💾 **Workspace persistente** | `~/.trama/<hash>/` por defecto. Sobrevive reboots. Override con `TRAMA_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas). |
 | 🔍 **FTS5 con acentos** | SQLite FTS5 con `tokenize='unicode61 remove_diacritics 2'` — `anos` encuentra `años`, `marta` encuentra `Marta`. Operadores `AND`/`OR`/`NEAR(A B, N)`. |
 
 ## ¿Qué NO hace?
@@ -42,7 +44,7 @@ Es un **auditor literal**, no un colaborador creativo.
 
 ```bash
 mkdir -p ~/.claude/skills
-git clone https://github.com/ChrisPiz/narrative-continuity.git ~/.claude/skills/narrative-continuity
+git clone https://github.com/ChrisPiz/trama.git ~/.claude/skills/trama
 ```
 
 Disponible inmediatamente — activación automática por triggers en cualquier sesión.
@@ -51,12 +53,12 @@ Disponible inmediatamente — activación automática por triggers en cualquier 
 
 Claude Desktop **no** carga skills desde filesystem. Los skills se suben como ZIP vía la web:
 
-1. Descarga el skill empaquetado: [`narrative-continuity.zip`](https://github.com/ChrisPiz/narrative-continuity/raw/main/narrative-continuity.zip)
+1. Descarga el skill empaquetado: [`trama.zip`](https://github.com/ChrisPiz/trama/raw/main/trama.zip)
    O genéralo localmente con todos los módulos:
    ```bash
-   git clone https://github.com/ChrisPiz/narrative-continuity.git
-   cd narrative-continuity
-   zip -r narrative-continuity.zip SKILL.md references scripts templates
+   git clone https://github.com/ChrisPiz/trama.git
+   cd trama
+   zip -r trama.zip SKILL.md references scripts templates
    ```
 2. Abre [claude.ai](https://claude.ai) → **Settings → Capabilities → Skills**
 3. Click **Upload skill** y selecciona el ZIP
@@ -67,8 +69,8 @@ Claude Desktop **no** carga skills desde filesystem. Los skills se suben como ZI
 ### Dentro de un plugin propio de Claude Code
 
 ```bash
-git clone https://github.com/ChrisPiz/narrative-continuity.git \
-  ~/.claude/plugins/mi-plugin/skills/narrative-continuity
+git clone https://github.com/ChrisPiz/trama.git \
+  ~/.claude/plugins/mi-plugin/skills/trama
 ```
 
 ### Otros entornos (Copilot CLI, Gemini CLI, etc.)
@@ -90,7 +92,7 @@ Se activa automáticamente cuando mencionas:
 - "¿Qué quedó sin resolver?", hilos abiertos
 - Apuntar a un archivo `.docx`, `.md`, `.txt`, `.rtf` o carpeta con varios
 
-Activación manual en Claude Code: `/narrative-continuity`.
+Activación manual en Claude Code: `/trama`.
 
 ---
 
@@ -112,7 +114,7 @@ PDF no soportado — el OCR/extracción tiene demasiada pérdida para auditoría
 ## Arquitectura
 
 ```
-narrative-continuity/
+trama/
 ├── SKILL.md                          # router + first contact
 ├── references/                       # módulos cargados bajo demanda
 │   ├── prepare.md                    # workspace + conversión
@@ -140,10 +142,10 @@ narrative-continuity/
 
 ### Workspace persistente por manuscrito
 
-Cada manuscrito vive en su propio directorio derivado del SHA-1 de la ruta original. Workspace por defecto: `~/.narrative-continuity/<hash>/` (sobrevive reboots, edits y reinstalaciones del skill). Override con `NARRATIVE_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas).
+Cada manuscrito vive en su propio directorio derivado del SHA-1 de la ruta original. Workspace por defecto: `~/.trama/<hash>/` (sobrevive reboots, edits y reinstalaciones del skill). Override con `TRAMA_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas).
 
 ```
-~/.narrative-continuity/<hash12>/
+~/.trama/<hash12>/
 ├── source.path                       # ruta original
 ├── manuscript.txt                    # versión normalizada actual
 ├── meta.json                         # hash, lang, words, mtime
@@ -334,7 +336,7 @@ El skill **nunca instala dependencias en silencio** — si falta algo, pregunta 
 
 ## Contribuir
 
-Reportes y PRs en https://github.com/ChrisPiz/narrative-continuity.
+Reportes y PRs en https://github.com/ChrisPiz/trama.
 
 Para añadir un nuevo patrón regex (atributo, marcador temporal), edita `references/patterns-bilingual.md` (fuente única) y referencia desde el script consumidor. No dupliques regex en múltiples archivos.
 

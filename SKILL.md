@@ -1,9 +1,11 @@
 ---
-name: narrative-continuity
-description: Audita manuscritos de novela en busca de inconsistencias de continuidad, coherencia de personajes, líneas temporales, hilos narrativos sin resolver, y construcción de character bible automatizado. Activa cuando el usuario mencione manuscrito, novela, capítulo, escena, story bible, character bible, plot, consistencia, continuidad, cronología, o pregunte cosas como "qué dije sobre X personaje", "es consistente la edad de Y", "encuentra inconsistencias", "audita mi novela", "qué quedó sin resolver", "mapa temporal", "build character bible", "find plot holes". Funciona con .docx, .md, .txt, .rtf — el usuario apunta a un archivo o carpeta y respondes con citas exactas (capítulo, línea, contexto). Soporta sagas multi-volumen y manuscritos >500k palabras vía indexado SQLite FTS5 y subagentes paralelos. NUNCA escribe prosa para el usuario — solo audita texto existente.
+name: trama
+description: Trama audita manuscritos de novela en busca de inconsistencias de continuidad, coherencia de personajes, líneas temporales, hilos narrativos sin resolver, y construye character bible automatizado. Activa cuando el usuario mencione manuscrito, novela, capítulo, escena, story bible, character bible, plot, trama, consistencia, continuidad, cronología, o pregunte cosas como "qué dije sobre X personaje", "es consistente la edad de Y", "encuentra inconsistencias", "audita mi novela", "qué quedó sin resolver", "mapa temporal", "build character bible", "find plot holes". Funciona con .docx, .md, .txt, .rtf — el usuario apunta a un archivo o carpeta y respondes con citas exactas (capítulo, línea, contexto). Soporta sagas multi-volumen y manuscritos >500k palabras vía indexado SQLite FTS5 y subagentes paralelos. Auditoría recurrente con snapshots persistentes y diff entre runs. NUNCA escribe prosa para el usuario — solo audita texto existente.
 ---
 
-# Narrative Continuity
+# Trama
+
+> Auditor de continuidad narrativa. El nombre juega con el doble sentido en español: *trama* como argumento de la historia + *trama* como hilo transversal del tejido. Auditas ambos.
 
 Auditas manuscritos existentes. **No escribes ficción. No editas prosa. Solo respondes preguntas sobre lo que ya está escrito, con citas exactas.** Si el usuario pide redacción, reescritura, generación de ideas o crítica de calidad — declínalo y ofrece volver a la auditoría.
 
@@ -56,7 +58,7 @@ Lee `references/prepare.md` para detalles. Resumen ejecutable:
 ```bash
 SRC="RUTA_USUARIO"
 bash scripts/prepare.sh "$SRC"
-# Output: WORK=/tmp/narrative-continuity/<hash>/  manuscript.txt listo
+# Output: WORK=~/.trama/<hash>/  manuscript.txt listo
 ```
 
 `prepare.sh` maneja:

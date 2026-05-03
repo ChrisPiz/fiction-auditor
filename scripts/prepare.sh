@@ -19,21 +19,30 @@ fi
 
 SRC_ABS="$(cd "$(dirname "$SRC")" && pwd)/$(basename "$SRC")"
 HASH=$(printf '%s' "$SRC_ABS" | shasum -a 1 | cut -c1-12)
-# Workspace persistente por defecto (sobrevive reboot). Override con NARRATIVE_HOME.
-NARRATIVE_HOME="${NARRATIVE_HOME:-$HOME/.narrative-continuity}"
-WORK="$NARRATIVE_HOME/$HASH"
+# Workspace persistente por defecto (sobrevive reboot).
+# Override con TRAMA_HOME. Por compat acepta también NARRATIVE_HOME (nombre v2).
+TRAMA_HOME="${TRAMA_HOME:-${NARRATIVE_HOME:-$HOME/.trama}}"
+WORK="$TRAMA_HOME/$HASH"
 mkdir -p "$WORK" "$WORK/runs"
 
-# Migración silenciosa desde /tmp legacy (v2.0): si workspace persistente vacío
-# pero /tmp/narrative-continuity/$HASH existe, copia los artefactos reusables.
-LEGACY="/tmp/narrative-continuity/$HASH"
-if [ -d "$LEGACY" ] && [ ! -f "$WORK/manuscript.txt" ] && [ -f "$LEGACY/manuscript.txt" ]; then
-  cp -n "$LEGACY/manuscript.txt" "$WORK/" 2>/dev/null || true
-  cp -n "$LEGACY/meta.json" "$WORK/" 2>/dev/null || true
-  cp -n "$LEGACY/chapters.tsv" "$WORK/" 2>/dev/null || true
-  cp -n "$LEGACY/wordcount.txt" "$WORK/" 2>/dev/null || true
-  cp -n "$LEGACY/fts5.db" "$WORK/" 2>/dev/null || true
-fi
+# Migración silenciosa desde paths legacy:
+#   v2.0 → /tmp/narrative-continuity/$HASH
+#   v2.1 → ~/.narrative-continuity/$HASH
+# Si workspace nuevo está vacío y un legacy tiene manuscript, copia artefactos.
+for LEGACY in "$HOME/.narrative-continuity/$HASH" "/tmp/narrative-continuity/$HASH" "/tmp/trama/$HASH"; do
+  if [ -d "$LEGACY" ] && [ ! -f "$WORK/manuscript.txt" ] && [ -f "$LEGACY/manuscript.txt" ]; then
+    cp -n "$LEGACY/manuscript.txt" "$WORK/" 2>/dev/null || true
+    cp -n "$LEGACY/meta.json" "$WORK/" 2>/dev/null || true
+    cp -n "$LEGACY/chapters.tsv" "$WORK/" 2>/dev/null || true
+    cp -n "$LEGACY/wordcount.txt" "$WORK/" 2>/dev/null || true
+    cp -n "$LEGACY/fts5.db" "$WORK/" 2>/dev/null || true
+    [ -f "$LEGACY/audit-log.tsv" ] && cp -n "$LEGACY/audit-log.tsv" "$WORK/" 2>/dev/null || true
+    if [ -d "$LEGACY/runs" ] && [ -z "$(ls -A "$WORK/runs" 2>/dev/null)" ]; then
+      cp -R "$LEGACY/runs/." "$WORK/runs/" 2>/dev/null || true
+    fi
+    break
+  fi
+done
 
 echo "$SRC_ABS" > "$WORK/source.path"
 

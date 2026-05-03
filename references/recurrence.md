@@ -4,12 +4,12 @@ Carga este módulo cuando el usuario quiera correr la auditoría a lo largo del 
 
 ## Workspace persistente
 
-Por defecto, el workspace vive en `~/.narrative-continuity/<hash>/` (no `/tmp`). Sobrevive reboots, edits del manuscrito, y reinstalaciones del skill. Override con `NARRATIVE_HOME=/ruta` si el usuario quiere otro lugar (ej. iCloud Drive para sync entre máquinas).
+Por defecto, el workspace vive en `~/.trama/<hash>/` (no `/tmp`). Sobrevive reboots, edits del manuscrito, y reinstalaciones del skill. Override con `TRAMA_HOME=/ruta` si el usuario quiere otro lugar (ej. iCloud Drive para sync entre máquinas).
 
 ## Layout
 
 ```
-~/.narrative-continuity/<hash>/
+~/.trama/<hash>/
 ├── source.path                 # ruta del manuscrito original
 ├── manuscript.txt              # versión normalizada actual
 ├── meta.json                   # metadata actual
@@ -57,7 +57,7 @@ bash scripts/audit-run.sh /ruta/manuscrito.docx --note "draft 5 - revisión Cap�
 Sale con sumario:
 
 ```
-WORK=/Users/x/.narrative-continuity/abc123def456
+WORK=/Users/x/.trama/abc123def456
 RUN=.../runs/2026-05-03T16-30-00Z
 TIMESTAMP=2026-05-03T16-30-00Z
 WORDS=87432
@@ -130,7 +130,7 @@ Si escribes activamente todos los días, programa:
 
 ```bash
 # crontab -e
-0 23 * * * /bin/bash $HOME/.claude/skills/narrative-continuity/scripts/audit-run.sh /ruta/novela.docx --note "auto-nightly"
+0 23 * * * /bin/bash $HOME/.claude/skills/trama/scripts/audit-run.sh /ruta/novela.docx --note "auto-nightly"
 ```
 
 Cada noche el log captura el estado. Por la mañana corres `audit-diff.sh` y ves qué cambió mientras dormías (útil si el manuscrito vive en Dropbox/iCloud y otros editores tocan).
