@@ -40,16 +40,16 @@ Es un **auditor literal**, no un colaborador creativo.
 
 ## Instalación
 
-### Claude Code (CLI)
+### Claude Code (CLI) — recomendado
 
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/ChrisPiz/trama.git ~/.claude/skills/trama
 ```
 
-Disponible inmediatamente — activación automática por triggers en cualquier sesión.
+Disponible inmediatamente — activación automática por triggers en cualquier sesión. **Funcionalidad completa**: workspace persistente en `~/.trama/<hash>/`, runs cronológicos, diff entre versiones, FTS5 sub-ms, cron.
 
-### Claude Desktop / Claude.ai (web)
+### Claude Desktop / Claude.ai (web) — modo limitado
 
 Claude Desktop **no** carga skills desde filesystem. Los skills se suben como ZIP vía la web:
 
@@ -59,6 +59,30 @@ Claude Desktop **no** carga skills desde filesystem. Los skills se suben como ZI
 4. El skill queda disponible automáticamente en Claude Desktop (sincroniza desde la cuenta)
 
 > **Nota:** la subida de skills personalizadas requiere plan Pro/Team/Enterprise. En plan Free solo están disponibles los skills oficiales de Anthropic.
+
+#### Qué funciona y qué no en Claude.ai
+
+El sandbox de Claude.ai es **efímero** — vive mientras dura la conversación. Esto cambia significativamente el comportamiento del skill:
+
+| Función | Claude Code (CLI) | Claude.ai (web) |
+|---|---|---|
+| Convertir `.docx`/`.md`/`.rtf` → texto | ✅ | ✅ (subes el archivo al chat) |
+| Búsqueda con citas | ✅ | ✅ |
+| Character bible automatizado | ✅ | ✅ |
+| Auditoría de atributos + flashbacks | ✅ | ✅ |
+| Línea temporal | ✅ | ✅ |
+| Hilos narrativos | ✅ | ✅ |
+| FTS5 sub-ms | ✅ Garantizado | ⚠️ Depende del sandbox: `sqlite3` CLI puede no estar disponible; fallback automático a `grep` si falla |
+| Workspace persistente `~/.trama/` | ✅ Sobrevive reboots | ❌ Se borra al cerrar la conversación |
+| Auditoría recurrente (`audit-run.sh`) | ✅ | ❌ Sin persistencia entre sesiones |
+| Diff entre runs (`audit-diff.sh`) | ✅ | ❌ No hay run anterior al que comparar |
+| Log de tendencias (`audit-log.tsv`) | ✅ | ❌ Se pierde |
+| Cron / scheduled audits | ✅ | ❌ No aplica |
+| Apuntar a `/Users/yo/novela.docx` | ✅ | ❌ El sandbox no ve tu filesystem — debes subir el archivo como attachment |
+
+**Conclusión:** en Claude.ai, Trama funciona como **auditor one-shot** — subes el manuscrito, hacés preguntas, todo se pierde al cerrar el chat.
+
+Si querés acompañar el proceso de escritura (auditar al terminar cada capítulo, comparar versiones, ver tendencias), **instalá en Claude Code**.
 
 ### Otros entornos (Copilot CLI, Gemini CLI, etc.)
 
