@@ -38,17 +38,21 @@ git clone https://github.com/ChrisPiz/narrative-continuity.git ~/.claude/skills/
 
 Disponible inmediatamente — activación automática por triggers en cualquier sesión.
 
-### Claude Desktop (macOS)
+### Claude Desktop / Claude.ai (web)
 
-```bash
-mkdir -p "$HOME/Library/Application Support/Claude/skills"
-git clone https://github.com/ChrisPiz/narrative-continuity.git \
-  "$HOME/Library/Application Support/Claude/skills/narrative-continuity"
-```
+Claude Desktop **no** carga skills desde filesystem. Los skills se suben como ZIP vía la web:
 
-Reinicia Claude Desktop. El skill aparece en **Settings → Capabilities → Skills**.
+1. Descarga el skill empaquetado: [`narrative-continuity.zip`](https://github.com/ChrisPiz/narrative-continuity/raw/main/narrative-continuity.zip)
+   O genéralo localmente:
+   ```bash
+   git clone https://github.com/ChrisPiz/narrative-continuity.git
+   cd narrative-continuity && zip narrative-continuity.zip SKILL.md
+   ```
+2. Abre [claude.ai](https://claude.ai) → **Settings → Capabilities → Skills**
+3. Click **Upload skill** y selecciona el ZIP
+4. El skill queda disponible automáticamente en Claude Desktop (sincroniza desde la cuenta)
 
-En Windows reemplaza la ruta por `%APPDATA%\Claude\skills\narrative-continuity`.
+> **Nota:** la subida de skills personalizadas requiere plan Pro/Team/Enterprise. En plan Free solo están disponibles los skills oficiales de Anthropic.
 
 ### Dentro de un plugin propio de Claude Code
 
