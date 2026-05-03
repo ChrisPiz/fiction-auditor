@@ -176,18 +176,6 @@ El skill **nunca instala dependencias en silencio** — si falta algo, te pregun
 
 ---
 
-## Contribuir
-
-PRs bienvenidos para:
-
-- Mejor regex de marcadores temporales en otros idiomas
-- Soporte para más formatos (epub, fb2)
-- Heurísticas de inconsistencia adicionales (siempre que se basen en evidencia citable, no inferencia)
-
-No se aceptan features que generen prosa, sugieran trama, o critiquen calidad de escritura — fuera del alcance del skill por diseño.
-
----
-
 ## Licencia
 
 MIT. Ver [LICENSE](LICENSE).
