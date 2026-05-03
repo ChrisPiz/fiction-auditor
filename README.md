@@ -131,26 +131,51 @@ narrative-continuity/
     └── audit-report.md               # formato reporte final
 ```
 
-### Workspace por manuscrito
+### Workspace persistente por manuscrito
 
-Cada manuscrito vive en su propio directorio derivado del SHA-1 de la ruta original:
+Cada manuscrito vive en su propio directorio derivado del SHA-1 de la ruta original. Workspace por defecto: `~/.narrative-continuity/<hash>/` (sobrevive reboots, edits y reinstalaciones del skill). Override con `NARRATIVE_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas).
 
 ```
-/tmp/narrative-continuity/<hash12>/
+~/.narrative-continuity/<hash12>/
 ├── source.path                       # ruta original
-├── manuscript.txt                    # versión normalizada
+├── manuscript.txt                    # versión normalizada actual
 ├── meta.json                         # hash, lang, words, mtime
 ├── chapters.tsv                      # línea<TAB>título_capítulo
 ├── wordcount.txt                     # cache word count
 ├── fts5.db                           # SQLite FTS5 (>5k palabras)
-├── entities.tsv                      # candidatos entidad
-├── timeline.tsv                      # marcadores temporales
-└── threads.tsv                       # hilos sin resolver
+├── current → runs/<TS_más_reciente>/ # symlink al último run
+├── runs/
+│   ├── 2026-05-03T16-30-00Z/         # snapshot timestamped
+│   │   ├── meta.json
+│   │   ├── entities.tsv
+│   │   ├── timeline.tsv
+│   │   ├── threads.tsv
+│   │   ├── audit-summary.txt         # output de --all si se usó
+│   │   └── diff-from-<TS>.md         # generado por audit-diff.sh
+│   └── …
+└── audit-log.tsv                     # append-only: timestamp, words,
+                                      # entities, timeline, unresolved,
+                                      # hard, soft, drift, note
 ```
 
-Si re-ejecutas la auditoría y el original es más nuevo, se re-convierte y re-indexa automáticamente. Si no, reusa los caches.
+Si re-ejecutas la auditoría y el original es más nuevo, se re-convierte y re-indexa automáticamente. Si no, reusa los caches. Cada `audit-run.sh` crea un nuevo snapshot en `runs/<TS>/` para que puedas comparar versiones del manuscrito a lo largo del tiempo.
 
-`/tmp` se borra al reiniciar macOS. Para auditorías largas, mueve el workspace a `~/.narrative-continuity/<hash>` (mismo layout, scripts agnósticos del path base).
+### Modo recurrente
+
+```bash
+# Run completo + snapshot + log
+bash scripts/audit-run.sh /ruta/manuscrito.docx
+bash scripts/audit-run.sh /ruta/manuscrito.docx --all                       # con audit-attribute
+bash scripts/audit-run.sh /ruta/manuscrito.docx --note "draft 5 pre-beta"
+
+# Diff vs run anterior (auto: último vs penúltimo)
+bash scripts/audit-diff.sh "$WORK"
+
+# Tendencias
+column -t -s$'\t' < "$WORK/audit-log.tsv"
+```
+
+Patrón típico para escritor activo: ejecutar `audit-run.sh` cada vez que termines un capítulo o sesión, leer el `diff-from-*.md` del último run para ver qué cambió. Ver `references/recurrence.md` para más patrones (cron diario, pre-feedback de editor, multi-volumen).
 
 ### Indexación
 

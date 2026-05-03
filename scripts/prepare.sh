@@ -19,8 +19,21 @@ fi
 
 SRC_ABS="$(cd "$(dirname "$SRC")" && pwd)/$(basename "$SRC")"
 HASH=$(printf '%s' "$SRC_ABS" | shasum -a 1 | cut -c1-12)
-WORK="/tmp/narrative-continuity/$HASH"
-mkdir -p "$WORK"
+# Workspace persistente por defecto (sobrevive reboot). Override con NARRATIVE_HOME.
+NARRATIVE_HOME="${NARRATIVE_HOME:-$HOME/.narrative-continuity}"
+WORK="$NARRATIVE_HOME/$HASH"
+mkdir -p "$WORK" "$WORK/runs"
+
+# Migración silenciosa desde /tmp legacy (v2.0): si workspace persistente vacío
+# pero /tmp/narrative-continuity/$HASH existe, copia los artefactos reusables.
+LEGACY="/tmp/narrative-continuity/$HASH"
+if [ -d "$LEGACY" ] && [ ! -f "$WORK/manuscript.txt" ] && [ -f "$LEGACY/manuscript.txt" ]; then
+  cp -n "$LEGACY/manuscript.txt" "$WORK/" 2>/dev/null || true
+  cp -n "$LEGACY/meta.json" "$WORK/" 2>/dev/null || true
+  cp -n "$LEGACY/chapters.tsv" "$WORK/" 2>/dev/null || true
+  cp -n "$LEGACY/wordcount.txt" "$WORK/" 2>/dev/null || true
+  cp -n "$LEGACY/fts5.db" "$WORK/" 2>/dev/null || true
+fi
 
 echo "$SRC_ABS" > "$WORK/source.path"
 

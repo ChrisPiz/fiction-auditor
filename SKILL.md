@@ -71,6 +71,22 @@ bash scripts/prepare.sh "$SRC"
 
 ---
 
+## Modo recurrente (recomendado para escritores activos)
+
+Para auditoría que persiste entre sesiones y compara contra runs anteriores, lee `references/recurrence.md` y usa el orquestador:
+
+```bash
+bash scripts/audit-run.sh "$SRC"                # snapshot timestamped
+bash scripts/audit-run.sh "$SRC" --all          # incluye audit cross-entity
+bash scripts/audit-diff.sh "$WORK"              # qué cambió desde el último run
+```
+
+Workspace por defecto: `~/.narrative-continuity/<hash>/` (persistente). Cada run crea `runs/<timestamp>/` con TSVs + reporte. Symlink `current/` apunta al último. Append-only `audit-log.tsv` para tendencias.
+
+Si el usuario solo quiere una consulta puntual, salta este modo y usa el pipeline directo abajo.
+
+---
+
 ## Indexado (una vez por manuscrito)
 
 Lee `references/index.md` para detalles. Tras `prepare.sh`, ejecuta:
@@ -102,6 +118,7 @@ Re-genera solo si `manuscript.txt` mtime > `meta.json` mtime.
 | "¿Qué quedó sin resolver?" / hilos abiertos | `references/threads.md` | `extract-threads.sh` |
 | Auditoría general / saga grande | `references/parallel.md` | (orquesta subagentes) |
 | Listar capítulos / word count | `references/index.md` | `chapter-of-line.sh` |
+| "Audita de nuevo" / "qué cambió" / tendencias / cron | `references/recurrence.md` | `audit-run.sh`, `audit-diff.sh` |
 
 **No vayas a ciegas:** lee el módulo relevante antes de operar. Cada módulo documenta sus heurísticas, edge cases y formato de salida.
 
