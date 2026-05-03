@@ -1,324 +1,195 @@
 ---
 name: narrative-continuity
-description: Audits novel manuscripts for continuity, character consistency, timeline coherence, and unresolved narrative threads. Activate when the user mentions a manuscript, novel, story bible, character bible, chapter, scene, plot consistency, or asks questions like "what did I say about X character", "is my timeline consistent", "find inconsistencies in my book", "audita mi novela", "qué dije sobre". Works with .docx, .md, .txt, .rtf files. The user points to a manuscript file or folder; you answer questions with exact citations (file, line number, surrounding paragraphs). Never write prose for the user — only audit existing text.
+description: Audita manuscritos de novela en busca de inconsistencias de continuidad, coherencia de personajes, líneas temporales, hilos narrativos sin resolver, y construcción de character bible automatizado. Activa cuando el usuario mencione manuscrito, novela, capítulo, escena, story bible, character bible, plot, consistencia, continuidad, cronología, o pregunte cosas como "qué dije sobre X personaje", "es consistente la edad de Y", "encuentra inconsistencias", "audita mi novela", "qué quedó sin resolver", "mapa temporal", "build character bible", "find plot holes". Funciona con .docx, .md, .txt, .rtf — el usuario apunta a un archivo o carpeta y respondes con citas exactas (capítulo, línea, contexto). Soporta sagas multi-volumen y manuscritos >500k palabras vía indexado SQLite FTS5 y subagentes paralelos. NUNCA escribe prosa para el usuario — solo audita texto existente.
 ---
 
 # Narrative Continuity
 
-Ayudas a novelistas a auditar manuscritos existentes en busca de inconsistencias. **No escribes ficción. No editas prosa. Solo respondes preguntas sobre lo que ya está escrito, con citas exactas.**
+Auditas manuscritos existentes. **No escribes ficción. No editas prosa. Solo respondes preguntas sobre lo que ya está escrito, con citas exactas.** Si el usuario pide redacción, reescritura, generación de ideas o crítica de calidad — declínalo y ofrece volver a la auditoría.
 
 ---
 
-## Cuándo activar este skill
+## Arquitectura
 
-Activa cuando el usuario:
-- Mencione manuscrito, novela, capítulo, escena, story bible, character bible
-- Pregunte "qué dije sobre [personaje/lugar/objeto]"
-- Pregunte sobre consistencia temporal, edad de personaje, color de ojos, relaciones
-- Pida encontrar inconsistencias, plot holes, hilos narrativos sin resolver
-- Apunte a un archivo o carpeta con ficción
+Este skill está modularizado. SKILL.md es el router: detecta intención del usuario y carga el módulo correspondiente desde `references/`. Los scripts en `scripts/` hacen el trabajo determinista (conversión, indexado, extracción) — invócalos en lugar de reimplementar lógica en cada conversación.
 
-**Cuándo NO activar:** si el usuario pide *escribir*, *generar*, *redactar*, *continuar* prosa. Dile que este skill solo audita texto existente y ofrece ayuda en otra modalidad.
+**Flujo general:**
 
----
-
-## Primer paso obligatorio
-
-Antes de responder cualquier pregunta, necesitas saber dónde está el manuscrito. Si el usuario no dio la ruta:
-
-> "¿Dónde está el manuscrito? Puedes darme:
-> - Un archivo (`.docx`, `.md`, `.txt`, `.rtf`)
-> - Una carpeta con varios archivos (los leeré en orden alfabético)
->
-> Si el archivo está en formato Pages o Google Docs, expórtalo a Word o Markdown primero."
-
-Una vez tengas la ruta, **prepara el manuscrito** siguiendo "Preparación".
+1. **First contact** — pide ruta del manuscrito si falta.
+2. **Preparación** — `scripts/prepare.sh` convierte a texto plano, calcula workspace por hash.
+3. **Indexado** — `scripts/index.sh` construye FTS5 + caches ligeros (una vez, re-genera si manuscrito cambia).
+4. **Operación** — según intención, carga el módulo `references/` y ejecuta scripts.
+5. **Respuesta** — siempre con cita textual + capítulo + línea.
 
 ---
 
-## Preparación del manuscrito
+## Cuándo activar
 
-### Workspace por manuscrito (evita colisiones)
+- Manuscrito, novela, capítulo, escena, story/character bible, plot
+- "Qué dije sobre [personaje/lugar/objeto]"
+- Consistencia de edad, color, relaciones, atributos
+- Inconsistencias, plot holes, hilos sin resolver
+- Cronología, mapa temporal, línea de tiempo
+- Apunta a archivo o carpeta con ficción
 
-Namespacing por hash de la ruta original. Esto evita que auditar dos novelas distintas pisotee el mismo `manuscript.txt`, y permite detectar si el original cambió desde la última conversión.
-
-```bash
-SRC="RUTA_ORIGINAL"
-HASH=$(printf '%s' "$SRC" | shasum -a 1 | cut -c1-12)
-WORK="/tmp/narrative-continuity/$HASH"
-mkdir -p "$WORK"
-echo "$SRC" > "$WORK/source.path"
-```
-
-Si `$WORK/manuscript.txt` ya existe, compara mtime contra el original antes de reusar:
-
-```bash
-if [ -f "$WORK/manuscript.txt" ] && [ "$WORK/manuscript.txt" -nt "$SRC" ]; then
-  echo "Reuso conversión existente."
-else
-  echo "Re-convirtiendo (original más nuevo o primera vez)."
-  # ejecuta conversión según extensión (ver abajo)
-fi
-```
-
-**Aviso al usuario:** `/tmp` se borra al reiniciar macOS. Si va a auditar a lo largo de varios días, dile que puede mover `$WORK` a `~/.narrative-continuity/$HASH` (mismo layout).
-
-### Conversión por formato
-
-#### `.txt` o `.md`
-```bash
-cp "$SRC" "$WORK/manuscript.txt"
-```
-
-#### `.docx` — preferir `pandoc`
-```bash
-pandoc "$SRC" -t plain -o "$WORK/manuscript.txt"
-```
-
-Si `pandoc` no existe, intenta Python con `python-docx`:
-
-```bash
-python3 -c "from docx import Document; import sys; doc=Document(sys.argv[1]); print('\n'.join(p.text for p in doc.paragraphs if p.text.strip()))" "$SRC" > "$WORK/manuscript.txt" 2>/dev/null
-```
-
-Si `python-docx` no está instalado, **NO instales en silencio**. Pregunta al usuario:
-
-> "Para convertir `.docx` necesito uno de estos:
-> - `brew install pandoc` (recomendado, una sola vez)
-> - `pip install --user python-docx`
->
-> ¿Cuál prefieres? O si tienes Word abierto, exporta a `.txt` y vuelve a apuntarme."
-
-#### `.rtf`
-```bash
-pandoc "$SRC" -t plain -o "$WORK/manuscript.txt"
-```
-
-Si no hay pandoc, sugiere `textutil -convert txt "$SRC" -output "$WORK/manuscript.txt"` (macOS nativo).
-
-#### Carpeta con varios archivos
-
-Concatena en orden alfabético, con marcadores claros y conversión real por extensión:
-
-```bash
-SRC_DIR="RUTA_CARPETA"
-HASH=$(printf '%s' "$SRC_DIR" | shasum -a 1 | cut -c1-12)
-WORK="/tmp/narrative-continuity/$HASH"
-mkdir -p "$WORK"
-: > "$WORK/manuscript.txt"
-
-while IFS= read -r f; do
-  ext="${f##*.}"
-  printf '\n\n=== %s ===\n\n' "$(basename "$f")" >> "$WORK/manuscript.txt"
-  case "$ext" in
-    txt|md)
-      cat "$f" >> "$WORK/manuscript.txt"
-      ;;
-    docx)
-      if command -v pandoc >/dev/null; then
-        pandoc "$f" -t plain >> "$WORK/manuscript.txt"
-      else
-        python3 -c "from docx import Document; import sys; doc=Document(sys.argv[1]); print('\n'.join(p.text for p in doc.paragraphs if p.text.strip()))" "$f" >> "$WORK/manuscript.txt"
-      fi
-      ;;
-    rtf)
-      if command -v pandoc >/dev/null; then
-        pandoc "$f" -t plain >> "$WORK/manuscript.txt"
-      else
-        textutil -convert txt "$f" -stdout >> "$WORK/manuscript.txt"
-      fi
-      ;;
-  esac
-done < <(find "$SRC_DIR" -maxdepth 1 -type f \( -iname '*.txt' -o -iname '*.md' -o -iname '*.docx' -o -iname '*.rtf' \) | sort)
-```
-
-### Confirmación al usuario
-
-Después de preparar, reporta en **una pasada** (sin llamar 3 comandos separados):
-
-```bash
-WORDS=$(wc -w < "$WORK/manuscript.txt" | tr -d ' ')
-CHAPTERS=$(grep -cE "^(#+\s*)?(Cap[íi]tulo|Chapter|CAP[ÍI]TULO|CHAPTER)\s+" "$WORK/manuscript.txt")
-FIRST3=$(grep -nE "^(#+\s*)?(Cap[íi]tulo|Chapter|CAP[ÍI]TULO|CHAPTER)\s+" "$WORK/manuscript.txt" | head -3)
-SIZE_KB=$(du -k "$WORK/manuscript.txt" | cut -f1)
-printf '✓ Manuscrito listo: %s palabras, %s capítulos, %s KB\nPrimeros 3:\n%s\n' "$WORDS" "$CHAPTERS" "$SIZE_KB" "$FIRST3"
-```
-
-**Aviso de tamaño:** si `WORDS > 150000` o `SIZE_KB > 1000`, advierte:
-
-> "Manuscrito grande (X palabras). Voy a usar `grep` con contexto acotado y nunca leeré el archivo completo. Si pides 'todas las menciones de Y' y hay >50, te muestro las primeras 50 + count y pregunto si quieres más."
-
-### Cache de índices ligeros
-
-Una sola vez por manuscrito (re-genera si `manuscript.txt` cambia), construye índices baratos para acelerar queries repetidas:
-
-```bash
-# Tabla de capítulos: línea<TAB>título — lookup O(log n) en vez de full-scan awk
-grep -nE "^(#+[[:space:]]*)?(Cap[íi]tulo|Chapter|CAP[ÍI]TULO|CHAPTER)[[:space:]]+" \
-  "$WORK/manuscript.txt" \
-  | sed 's/:/\t/' > "$WORK/chapters.tsv"
-
-# Word count cacheado
-wc -w < "$WORK/manuscript.txt" | tr -d ' ' > "$WORK/wordcount.txt"
-```
-
-Para mapear línea→capítulo usando el cache:
-
-```bash
-awk -v L=230 -F'\t' '
-  $1 <= L { c = $2 }
-  END { print (c ? c : "(antes de cualquier capítulo)") }
-' "$WORK/chapters.tsv"
-```
-
-**Indexado pesado opcional (saga >500k palabras o queries muy repetidas):** SQLite FTS5 con `tokenize='unicode61 remove_diacritics 2'`. Build ~1s, queries sub-ms con normalización de acentos automática. Solo si el usuario lo pide explícitamente.
+**No activar** si el usuario pide *escribir, generar, redactar, continuar* prosa, o *criticar calidad*. Aclara el alcance y ofrece auditar lo que ya escribió.
 
 ---
 
-## Operaciones disponibles
+## First contact
 
-### Scanner: ripgrep si existe, grep si no
+Si el usuario no dio ruta:
 
-`rg` (ripgrep) es 5–10x más rápido que `grep` en archivos grandes. Detéctalo y úsalo:
+> "¿Dónde está el manuscrito?
+> - Archivo único (`.docx`, `.md`, `.txt`, `.rtf`)
+> - Carpeta con varios archivos (los leeré en orden alfabético)
+> - Para Pages/Google Docs, exporta antes a Word o Markdown"
 
-```bash
-if command -v rg >/dev/null; then SCAN="rg -n"; else SCAN="grep -nE"; fi
-```
-
-Sustituye `grep -n` por `$SCAN` en las operaciones siguientes. Sintaxis de regex compatible para los patrones de este skill.
-
-### Buscar menciones de algo
-
-```bash
-grep -ni -B 2 -A 2 "TÉRMINO" "$WORK/manuscript.txt"
-```
-
-Flags: `-n` línea (crítico), `-i` case insensitive, `-B/-A` contexto.
-
-**Acentos en español:** `grep -i` NO normaliza diacríticos. Para buscar "años" y "anos" como equivalentes (o "Marta" y "MARTA"), normaliza on-the-fly:
-
-```bash
-iconv -f UTF-8 -t ASCII//TRANSLIT "$WORK/manuscript.txt" 2>/dev/null \
-  | grep -ni -B 2 -A 2 "TERMINO_SIN_ACENTOS"
-```
-
-Úsalo solo cuando sospeches inconsistencia ortográfica del propio manuscrito. Por defecto respeta los acentos del autor.
-
-**Cap de resultados:** si `grep` devuelve >50 hits, no los vuelques todos. Muestra primeros 30 + count total + ofrece filtrar.
-
-### Listar capítulos
-
-```bash
-grep -nE "^(#+\s*)?(Cap[íi]tulo|Chapter|CAP[ÍI]TULO|CHAPTER)\s+" "$WORK/manuscript.txt"
-```
-
-### Word count por capítulo
-
-```bash
-sed -n 'INICIO,FINp' "$WORK/manuscript.txt" | wc -w
-```
-
-### Mapear línea → capítulo
-
-```bash
-awk -v L=230 '
-  BEGIN { c = "(antes de cualquier capítulo)" }
-  /^(#+[[:space:]]*)?(Cap[íi]tulo|Chapter|CAP[ÍI]TULO|CHAPTER)[[:space:]]+/ { c = $0 }
-  NR == L { print c; exit }
-' "$WORK/manuscript.txt"
-```
-
-Úsalo siempre que cites una línea — el reporte debe decir capítulo + línea.
-
-### Extraer afirmaciones sobre una entidad
-
-No hay comando único. Procedimiento:
-
-1. `grep -ni -B 1 -A 1 "ENTIDAD" "$WORK/manuscript.txt"`
-2. Lee resultados.
-3. Filtra mentalmente oraciones donde la entidad es **sujeto o tema central** (no solo mencionada de paso).
-4. Reporta cada afirmación con cita exacta + capítulo (vía awk arriba).
-
-### Detectar marcadores temporales
-
-**Español:**
-```bash
-grep -niE "(hace|hacía) [a-z]+ (años?|meses?|semanas?|días?)|[a-z]+ (años?|meses?|semanas?|días?) (después|antes|atrás)|en (el año )?[0-9]{4}|(lunes|martes|miércoles|jueves|viernes|sábado|domingo)|al día siguiente|esa (mañana|tarde|noche)" "$WORK/manuscript.txt"
-```
-
-**Inglés:**
-```bash
-grep -niE "(two|three|four|five|six|seven|eight|nine|ten|[0-9]+) (years?|months?|weeks?|days?|hours?) (later|ago|before|after)|in (the year )?[0-9]{4}|(monday|tuesday|wednesday|thursday|friday|saturday|sunday)|next (morning|day|week|month|year)|that (morning|afternoon|evening|night)|the (following|previous) (day|week|month|year)" "$WORK/manuscript.txt"
-```
-
-### Encontrar inconsistencias
-
-No es una operación atómica. Procedimiento:
-
-1. Usuario pregunta inconsistencia específica ("¿Marta tiene 34 o 36?") o pide auditoría general.
-2. Inconsistencia específica: extrae afirmaciones sobre el atributo con `grep`.
-3. Compara cronológicamente (por línea / capítulo).
-4. Reporta contradicciones explícitas con ambas citas.
-
-**No inventes inconsistencias.** Solo reporta contradicciones que puedas citar directamente.
+Una vez tengas la ruta, ejecuta el pipeline de preparación.
 
 ---
 
-## Cómo formatear las respuestas
+## Pipeline de preparación
 
-**Siempre cita.** Formato estándar:
+Lee `references/prepare.md` para detalles. Resumen ejecutable:
 
-> Sobre **Elena** (hermana de Marta), encontré 3 menciones:
->
-> **Capítulo 4 — línea 230**
-> > Elena entró sin tocar, como siempre.
->
-> **Capítulo 7 — línea 88**
-> > —¿Dónde está tu hermana? —preguntó.
->
-> **Capítulo 12 — línea 412**
-> > Elena le había escrito esa mañana.
+```bash
+SRC="RUTA_USUARIO"
+bash scripts/prepare.sh "$SRC"
+# Output: WORK=/tmp/narrative-continuity/<hash>/  manuscript.txt listo
+```
 
-**Reglas:**
-- Nunca parafrasees lo que dice el manuscrito. Cita textual.
-- Siempre incluye número de línea Y capítulo (usa el awk de arriba).
-- Para inconsistencias, usa ⚠️ y muestra ambas citas en conflicto.
+`prepare.sh` maneja:
+- Hash de la ruta → workspace aislado por manuscrito
+- Detección de formato (`.docx` `.md` `.txt` `.rtf` o carpeta)
+- Conversión con fallback (pandoc → python-docx → textutil)
+- Verificación de mtime para reusar conversiones previas
+- Concatenación ordenada si es carpeta
+- Aviso de tamaño (`>150k` palabras → modo grande)
+
+**Si falta una herramienta de conversión, NO instales en silencio.** Pregunta al usuario qué prefiere instalar.
 
 ---
 
-## Si no hay marcadores de capítulo
+## Indexado (una vez por manuscrito)
 
-Si `grep` de capítulos devuelve 0 hits, dilo:
+Lee `references/index.md` para detalles. Tras `prepare.sh`, ejecuta:
 
-> "No detecté marcadores de capítulo claros. Las citas usarán solo número de línea. Si quieres reconocimiento de capítulos, asegúrate de que empiecen con 'Capítulo N', 'Chapter N', o '# N'."
+```bash
+bash scripts/index.sh "$WORK"
+```
+
+Construye en `$WORK/`:
+- `fts5.db` — SQLite FTS5 con `tokenize='unicode61 remove_diacritics 2'` (búsquedas sub-ms con normalización de acentos)
+- `chapters.tsv` — `línea<TAB>título_capítulo` para mapeo O(log n)
+- `wordcount.txt` — total cacheado
+- `meta.json` — hash de contenido + timestamp para invalidación
+
+Re-genera solo si `manuscript.txt` mtime > `meta.json` mtime.
+
+**Para sagas (>500k palabras) o queries muy repetidas**, FTS5 es la diferencia entre 5s y 5ms por consulta. Vale la pena siempre.
+
+---
+
+## Operaciones — tabla de despacho
+
+| Intención del usuario | Módulo | Scripts clave |
+|---|---|---|
+| "¿Qué dije sobre X?" | `references/query.md` | `fts-query.sh` |
+| "Build character bible" / extraer personajes | `references/entities.md` | `extract-entities.sh` |
+| "¿Es consistente la edad/atributo de X?" | `references/consistency.md` | `audit-attribute.sh` |
+| "Mapa temporal" / "¿la cronología cuadra?" | `references/timeline.md` | `extract-timeline.sh` |
+| "¿Qué quedó sin resolver?" / hilos abiertos | `references/threads.md` | `extract-threads.sh` |
+| Auditoría general / saga grande | `references/parallel.md` | (orquesta subagentes) |
+| Listar capítulos / word count | `references/index.md` | `chapter-of-line.sh` |
+
+**No vayas a ciegas:** lee el módulo relevante antes de operar. Cada módulo documenta sus heurísticas, edge cases y formato de salida.
+
+---
+
+## Patrones bilingües
+
+`references/patterns-bilingual.md` contiene los regex ES/EN para capítulos, marcadores temporales, dialog tags, preguntas, promesas. Úsalo como única fuente — no inventes patrones nuevos en cada conversación.
+
+Detecta idioma del manuscrito en `prepare.sh` (heurística: frecuencia de palabras función). Guardado en `$WORK/meta.json` como `lang`. Pasa `LANG=$lang` a los scripts de extracción.
+
+---
+
+## Formato de respuestas
+
+**Siempre cita textual.** Nunca parafrasees el manuscrito.
+
+```
+Sobre **Elena** (hermana de Marta): 3 menciones.
+
+**Capítulo 4 — línea 230**
+> Elena entró sin tocar, como siempre.
+
+**Capítulo 7 — línea 88**
+> —¿Dónde está tu hermana? —preguntó.
+
+**Capítulo 12 — línea 412**
+> Elena le había escrito esa mañana.
+```
+
+**Inconsistencias:**
+
+```
+⚠️ Inconsistencia: edad de Marta
+
+**Capítulo 3 — línea 245**
+> Marta tenía 34 años cuando empezó todo.
+
+**Capítulo 11 — línea 2103**
+> Marta acaba de cumplir 36, dijo su madre.
+
+Diferencia: 2 años entre dos puntos del manuscrito que (según marcadores temporales del Cap 4 al 11) cubren 8 meses de tiempo narrativo.
+```
+
+**Reglas estrictas:**
+- Cada cita = capítulo + línea (usa `chapter-of-line.sh`)
+- Texto entre comillas exacto, sin reformatear
+- Si el manuscrito no tiene marcadores de capítulo, dilo y usa solo línea
+- Si encuentras >50 hits, muestra primeros 30 + count + ofrece filtrar
+
+Para reportes completos de auditoría, usa `templates/audit-report.md`.
+
+---
+
+## Manuscritos grandes
+
+Umbral: **150k palabras** o **>1 MB** del `manuscript.txt`.
+
+- Nunca leas el archivo completo. Usa solo `fts-query.sh` con contexto acotado.
+- Para auditoría holística, lee `references/parallel.md` — orquesta subagentes (uno por arco/volumen) que reportan hallazgos estructurados.
+- Sagas multi-volumen: pasa carpeta a `prepare.sh`, los volúmenes quedan separados por marcadores `=== filename ===` en el output.
 
 ---
 
 ## Limitaciones — sé honesto
 
-- **Pronombres:** "Ella entró" tras "Elena llegó" probablemente refiere a Elena, pero `grep` solo encuentra coincidencias literales. Si parece relevante, pide confirmación al usuario.
-- **Inconsistencias implícitas:** subtexto, tono, atmósfera. Solo detectas contradicciones explícitas.
-- **Prosa muy metafórica:** falsos positivos posibles. Confía en el escritor sobre las heurísticas.
-- **Manuscritos sin marcadores de capítulo:** las citas usarán solo número de línea.
-- **Manuscritos enormes (>150k palabras):** no leerás archivo completo, solo `grep` con contexto. Si necesitas auditoría holística, divide por arco narrativo.
+- **Pronombres no resueltos:** "Ella entró" tras "Elena llegó" probablemente refiere a Elena, pero el extractor no hace coreference. Pide confirmación si es relevante.
+- **Inconsistencias implícitas:** subtexto, tono, atmósfera quedan fuera. Solo detectas contradicciones explícitas con citas directas.
+- **Prosa metafórica:** falsos positivos en marcadores temporales ("hace mil años que no te veo"). Reporta el match crudo y deja que el escritor juzgue.
+- **Sin marcadores de capítulo:** las citas usan solo número de línea. Avisa al usuario.
 
-Reportar limitaciones aumenta confianza.
+Reportar limitaciones aumenta confianza. No infles certezas.
 
 ---
 
 ## Lo que este skill NO hace
 
-Si el usuario pide algo de esta lista, dilo claramente y para:
+Si el usuario pide algo de esta lista, dilo y para:
 
 - Escribir o reescribir prosa
 - Generar sugerencias de trama
-- Criticar calidad de escritura ("¿esto está bien escrito?")
-- Tracking de productividad o word count goals
-- Reemplazar a un editor humano para notas de desarrollo
+- Criticar calidad de escritura
+- Tracking de productividad / word count goals
+- Reemplazar editor humano de desarrollo
 
-Ejemplo:
+Ofrecimiento estándar:
 
-> Este skill solo audita coherencia de texto existente. Para [crítica de prosa / generación de ideas / etc.], puedo ayudarte fuera del skill. ¿Quieres seguir con la auditoría o cambiamos?
+> "Este skill solo audita coherencia de texto existente. Para [crítica / generación / etc.], puedo ayudarte fuera del skill. ¿Quieres seguir con la auditoría o cambiamos?"
 
 ---
 
@@ -326,23 +197,26 @@ Ejemplo:
 
 ```
 Usuario: "Audita /Users/yo/novela.docx"
-Tú: [calculas hash → /tmp/narrative-continuity/ab12cd34ef56/]
-Tú: [chequeas mtime → re-convertir o reusar]
-Tú: [pandoc o python-docx según disponibilidad]
-Tú: ✓ Manuscrito listo: 87,432 palabras, 18 capítulos, 412 KB
-    Primeros 3:
-      L12  Capítulo 1: El despertar
+Tú: bash scripts/prepare.sh "/Users/yo/novela.docx"
+Tú: bash scripts/index.sh "$WORK"
+Tú: ✓ Listo: 87,432 palabras, 18 capítulos, 412 KB, idioma=es
+    Primeros 3 capítulos:
+      L12   Capítulo 1: El despertar
       L1843 Capítulo 2: La carta
       L3502 Capítulo 3: Vuelta a casa
     ¿Qué quieres revisar?
 
-Usuario: "¿Qué he dicho sobre Elena?"
-Tú: [grep -ni -B 2 -A 2 "Elena"]
-Tú: [awk para mapear cada hit a su capítulo]
-Tú: [reportas 7 menciones con cita exacta + capítulo]
+Usuario: "Construye character bible de Elena y Marta"
+Tú: [lee references/entities.md]
+Tú: bash scripts/extract-entities.sh "$WORK" "Elena" "Marta"
+Tú: [reporta atributos detectados con citas]
 
-Usuario: "Verifica si la edad de Marta es consistente"
-Tú: [grep para "Marta" + edades cercanas]
-Tú: ⚠️ Inconsistencia: Capítulo 3 línea 245 dice "Marta tiene 34 años",
-    Capítulo 11 línea 2103 dice "Marta acaba de cumplir 36"
+Usuario: "¿Es consistente la edad de Marta?"
+Tú: [lee references/consistency.md]
+Tú: bash scripts/audit-attribute.sh "$WORK" "Marta" "edad"
+Tú: ⚠️ [reporta contradicción con dos citas]
+
+Usuario: "Auditoría completa"
+Tú: [lee references/parallel.md, decide si dispara subagentes]
+Tú: [orquesta extracción + agrega + genera reporte vía templates/audit-report.md]
 ```
