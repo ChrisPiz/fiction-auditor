@@ -29,23 +29,41 @@ Es un **auditor literal**, no un colaborador creativo.
 
 ## Instalación
 
-### Claude Code (skill local)
+### Claude Code (CLI)
 
 ```bash
-# Skill global del usuario
 mkdir -p ~/.claude/skills
 git clone https://github.com/ChrisPiz/narrative-continuity.git ~/.claude/skills/narrative-continuity
 ```
 
-O dentro de un plugin:
+Disponible inmediatamente — activación automática por triggers en cualquier sesión.
+
+### Claude Desktop (macOS)
 
 ```bash
-git clone https://github.com/ChrisPiz/narrative-continuity.git <tu-plugin>/skills/narrative-continuity
+mkdir -p "$HOME/Library/Application Support/Claude/skills"
+git clone https://github.com/ChrisPiz/narrative-continuity.git \
+  "$HOME/Library/Application Support/Claude/skills/narrative-continuity"
 ```
+
+Reinicia Claude Desktop. El skill aparece en **Settings → Capabilities → Skills**.
+
+En Windows reemplaza la ruta por `%APPDATA%\Claude\skills\narrative-continuity`.
+
+### Dentro de un plugin propio de Claude Code
+
+Si ya tienes un plugin en `~/.claude/plugins/mi-plugin/`, agrega el skill como subcarpeta:
+
+```bash
+git clone https://github.com/ChrisPiz/narrative-continuity.git \
+  ~/.claude/plugins/mi-plugin/skills/narrative-continuity
+```
+
+Reemplaza `mi-plugin` por el nombre real de tu plugin.
 
 ### Otros entornos (Copilot CLI, Gemini CLI, etc.)
 
-El skill es un único archivo `SKILL.md` con frontmatter YAML estándar. Cualquier harness compatible con el formato Anthropic Skills lo acepta sin modificación.
+El skill es un único archivo `SKILL.md` con frontmatter YAML estándar. Cualquier harness compatible con el formato Anthropic Skills lo acepta sin modificación — copia `SKILL.md` al directorio de skills que use tu harness.
 
 ---
 
