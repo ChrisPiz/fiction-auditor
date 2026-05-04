@@ -4,12 +4,12 @@ Carga este módulo cuando el usuario quiera correr la auditoría a lo largo del 
 
 ## Workspace persistente
 
-Por defecto, el workspace vive en `~/.trama/<hash>/` (no `/tmp`). Sobrevive reboots, edits del manuscrito, y reinstalaciones del skill. Override con `TRAMA_HOME=/ruta` si el usuario quiere otro lugar (ej. iCloud Drive para sync entre máquinas).
+Por defecto, el workspace vive en `<dir-del-manuscrito>/trama-doc/<nombre>/` (no `/tmp`). Sobrevive reboots, edits del manuscrito, y reinstalaciones del skill. Override con `TRAMA_HOME=/ruta` si el usuario quiere otro lugar (ej. iCloud Drive para sync entre máquinas).
 
 ## Layout
 
 ```
-~/.trama/<hash>/
+<dir-del-manuscrito>/trama-doc/<nombre>/
 ├── source.path                 # ruta del manuscrito original
 ├── manuscript.txt              # versión normalizada actual
 ├── meta.json                   # metadata actual
@@ -57,7 +57,7 @@ bash scripts/audit-run.sh /ruta/manuscrito.docx --note "draft 5 - revisión Cap�
 Sale con sumario:
 
 ```
-WORK=/Users/x/.trama/abc123def456
+WORK=/Users/yo/Documents/trama-doc/novela
 RUN=.../runs/2026-05-03T16-30-00Z
 TIMESTAMP=2026-05-03T16-30-00Z
 WORDS=87432

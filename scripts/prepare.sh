@@ -19,10 +19,28 @@ fi
 
 SRC_ABS="$(cd "$(dirname "$SRC")" && pwd)/$(basename "$SRC")"
 HASH=$(printf '%s' "$SRC_ABS" | shasum -a 1 | cut -c1-12)
-# Workspace persistente por defecto (sobrevive reboot).
-# Override con TRAMA_HOME. Por compat acepta también NARRATIVE_HOME (nombre v2).
-TRAMA_HOME="${TRAMA_HOME:-${NARRATIVE_HOME:-$HOME/.trama}}"
-WORK="$TRAMA_HOME/$HASH"
+
+# Workspace junto al manuscrito por defecto: <carpeta>/trama-doc/<nombre>/
+# Visible, findable, queda con el libro. Si la fuente es archivo:
+#   /Users/yo/Documents/novela.docx → /Users/yo/Documents/trama-doc/novela/
+# Si la fuente es carpeta (saga):
+#   /Users/yo/Books/mi-saga/ → /Users/yo/Books/trama-doc/mi-saga/
+#
+# Override centralizado: TRAMA_HOME=/ruta (modo legacy, todos los manuscritos
+# en un solo lugar oculto, indexados por hash). Útil para sync iCloud.
+SRC_BASENAME="$(basename "$SRC_ABS")"
+SRC_NAME="${SRC_BASENAME%.*}"
+[ "$SRC_NAME" = "$SRC_BASENAME" ] || [ -z "$SRC_NAME" ] && SRC_NAME="$SRC_BASENAME"
+SRC_PARENT="$(dirname "$SRC_ABS")"
+
+if [ -n "${TRAMA_HOME:-}" ] || [ -n "${NARRATIVE_HOME:-}" ]; then
+  # Modo centralizado explícito: hash dentro del HOME especificado
+  TRAMA_HOME="${TRAMA_HOME:-${NARRATIVE_HOME}}"
+  WORK="$TRAMA_HOME/$HASH"
+else
+  # Modo por defecto: junto al manuscrito
+  WORK="$SRC_PARENT/trama-doc/$SRC_NAME"
+fi
 mkdir -p "$WORK" "$WORK/runs"
 
 # Check de updates remotos (silencioso si no hay/throttled). Disable con
@@ -34,8 +52,9 @@ fi
 # Migración silenciosa desde paths legacy:
 #   v2.0 → /tmp/narrative-continuity/$HASH
 #   v2.1 → ~/.narrative-continuity/$HASH
+#   v2.2 → ~/.trama/$HASH (oculto centralizado)
 # Si workspace nuevo está vacío y un legacy tiene manuscript, copia artefactos.
-for LEGACY in "$HOME/.narrative-continuity/$HASH" "/tmp/narrative-continuity/$HASH" "/tmp/trama/$HASH"; do
+for LEGACY in "$HOME/.trama/$HASH" "$HOME/.narrative-continuity/$HASH" "/tmp/narrative-continuity/$HASH" "/tmp/trama/$HASH"; do
   if [ -d "$LEGACY" ] && [ ! -f "$WORK/manuscript.txt" ] && [ -f "$LEGACY/manuscript.txt" ]; then
     cp -n "$LEGACY/manuscript.txt" "$WORK/" 2>/dev/null || true
     cp -n "$LEGACY/meta.json" "$WORK/" 2>/dev/null || true

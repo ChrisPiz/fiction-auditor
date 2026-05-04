@@ -168,12 +168,32 @@ trama/
     └── audit-report.md               # formato reporte final
 ```
 
-### Workspace persistente por manuscrito
+### Workspace junto al manuscrito (visible)
 
-Cada manuscrito vive en su propio directorio derivado del SHA-1 de la ruta original. Workspace por defecto: `~/.trama/<hash>/` (sobrevive reboots, edits y reinstalaciones del skill). Override con `TRAMA_HOME=/ruta` (ej. iCloud Drive para sync entre máquinas).
+Cada manuscrito tiene su workspace **al lado del archivo**, no en una carpeta oculta. Si auditás `/Users/yo/Documents/novela.docx`, Trama crea:
 
 ```
-~/.trama/<hash12>/
+/Users/yo/Documents/
+├── novela.docx              ← tu manuscrito
+└── trama-doc/
+    └── novela/              ← workspace, todo visible aquí
+        ├── manuscript.txt
+        ├── chapters.tsv
+        ├── entities.tsv
+        ├── timeline.tsv
+        ├── threads.tsv
+        ├── fts5.db
+        ├── current → runs/<TS>/
+        ├── runs/
+        └── audit-log.tsv
+```
+
+Lo abrís en Finder, lo versionás con git junto al libro, lo compartís con tu editor — está donde esperás encontrarlo.
+
+**Modo centralizado opcional:** si preferís un único lugar oculto para todos los manuscritos (útil para sync iCloud, o si auditás libros desde carpetas read-only), exportá `TRAMA_HOME=/ruta` y los workspaces se crean ahí indexados por hash.
+
+```
+~/.trama/<hash12>/                # solo si TRAMA_HOME está set
 ├── source.path                       # ruta original
 ├── manuscript.txt                    # versión normalizada actual
 ├── meta.json                         # hash, lang, words, mtime
