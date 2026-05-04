@@ -84,6 +84,23 @@ Claude Desktop **es un cliente** que sincroniza el skill desde tu cuenta de clau
 
 Si querés acompañar el proceso de escritura (auditar al terminar cada capítulo, comparar versiones, ver tendencias), **instalá en Claude Code**.
 
+### Actualización
+
+Trama se auto-detecta updates: cuando ejecutas una auditoría, el skill chequea silenciosamente si hay commits nuevos en GitHub (máx 1 vez al día) y te avisa si hay novedades. Cuando veas el aviso:
+
+```bash
+cd ~/.claude/skills/trama && git pull
+```
+
+Reinicia Claude Code después del pull para que cargue la nueva versión. **Tu workspace `~/.trama/<hash>/` no se toca** — solo se actualiza el código del skill.
+
+Si querés desactivar el check:
+```bash
+export TRAMA_NO_UPDATE_CHECK=1
+```
+
+Para Claude Desktop / Claude.ai (web), no hay auto-detect — re-descarga el ZIP y re-súbelo.
+
 ### Otros entornos (Copilot CLI, Gemini CLI, etc.)
 
 El skill sigue el formato Anthropic Skills estándar (`SKILL.md` con frontmatter YAML + módulos en `references/` + scripts en `scripts/`). Cualquier harness compatible lo acepta sin modificación — copia el directorio completo al lugar donde tu harness busque skills.

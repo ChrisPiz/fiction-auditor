@@ -25,6 +25,12 @@ TRAMA_HOME="${TRAMA_HOME:-${NARRATIVE_HOME:-$HOME/.trama}}"
 WORK="$TRAMA_HOME/$HASH"
 mkdir -p "$WORK" "$WORK/runs"
 
+# Check de updates remotos (silencioso si no hay/throttled). Disable con
+# TRAMA_NO_UPDATE_CHECK=1.
+if [ -z "${TRAMA_NO_UPDATE_CHECK:-}" ]; then
+  bash "$(dirname "$0")/check-update.sh" 2>/dev/null || true
+fi
+
 # Migración silenciosa desde paths legacy:
 #   v2.0 → /tmp/narrative-continuity/$HASH
 #   v2.1 → ~/.narrative-continuity/$HASH
