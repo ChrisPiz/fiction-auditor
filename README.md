@@ -138,6 +138,82 @@ Claude: 🟡 edad de Marta — 3 afirmaciones, severidad=soft
 
 ---
 
+## Qué decirle a Claude
+
+Frases naturales que activan cada funcionalidad. No tenés que memorizarlas — si dudás, preguntale a Claude qué puede hacer con tu manuscrito.
+
+### Empezar
+- `audita /Users/yo/Documents/novela.docx`
+- `quiero auditar mi novela en /ruta/al/libro.md`
+- `revisa la carpeta /Users/yo/saga/` (multi-volumen)
+
+### Buscar con citas
+- `qué he dicho sobre Elena`
+- `todas las menciones de la pistola`
+- `dónde aparece el faro`
+- `busca la frase "el rojo del atardecer"`
+- `cuántas veces aparece "silencio"`
+
+### Character bible
+- `construye el character bible`
+- `extrae personajes y lugares`
+- `qué sabemos de Marta`
+- `relaciones familiares de los personajes`
+- `quiénes son los personajes principales`
+
+### Auditoría de atributos (contradicciones)
+- `es consistente la edad de Marta`
+- `qué color de ojos tiene Elena en el libro`
+- `revisa la profesión de Carmen`
+- `audita todos los atributos de los personajes`
+- `chequea si la altura de X cuadra entre capítulos`
+
+### Línea temporal
+- `mapa temporal del libro`
+- `cronología del primer acto`
+- `cuánto tiempo pasa entre el Cap 3 y el Cap 8`
+- `verifica que las edades cuadren con los saltos temporales`
+- `marcadores temporales del manuscrito`
+
+### Hilos sin resolver
+- `qué quedó sin resolver`
+- `hilos abiertos`
+- `qué promesas hicieron los personajes y no cumplieron`
+- `preguntas sin respuesta en el libro`
+- `personajes huérfanos` (aparecen una vez y no vuelven)
+- `objetos sin disparar` (Chekhov's gun)
+
+### Auditoría recurrente / diff
+- `qué cambió desde la última auditoría`
+- `compara con la versión anterior`
+- `corre la auditoría de nuevo`
+- `tendencias de hilos abiertos`
+- `muéstrame el log de auditorías`
+- `audita y guarda este run con la nota "post Cap 12"`
+
+### Listar / stats
+- `cuántas palabras tiene el libro`
+- `lista los capítulos`
+- `cuántas palabras tiene cada capítulo`
+- `cuál es el capítulo más largo`
+
+### Saga / libro grande
+- `audita toda la saga`
+- `auditoría completa con subagentes paralelos`
+- `audita el manuscrito completo` (para >150k palabras)
+
+### Reporte final
+- `genera el reporte de auditoría completo`
+- `dame un resumen para mandar al editor`
+- `crea el character bible en markdown editable`
+
+### No olvides
+- Trama **siempre cita textual** — capítulo + línea + verbatim
+- Si Claude no encuentra algo, te lo dice (no inventa)
+- Podés pedir confirmación si la respuesta es ambigua ("¿te referís a Elena la madre o Elena la prima?")
+
+---
+
 ## Limitaciones honestas
 
 - **Pronombres no resueltos**: "Ella entró" después de "Elena llegó" probablemente refiere a Elena, pero Trama no resuelve pronombres. Te pide confirmación si es relevante.
