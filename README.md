@@ -49,6 +49,21 @@ Es un **auditor literal**, no un colaborador creativo. Solo te dice lo que ya es
 
 ---
 
+## Instalación
+
+Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Es la única manera de usarlo con todas sus capacidades.
+
+```bash
+mkdir -p ~/.claude/skills
+git clone https://github.com/ChrisPiz/trama.git ~/.claude/skills/trama
+```
+
+Listo. La próxima vez que abras `claude` en una terminal, Trama está disponible. Mismo plan Pro/Max que ya pagás — sin costo extra.
+
+> ⚠️ **Claude Desktop / Claude.ai web** funcionan en modo limitado (auditor one-shot, sin historial entre sesiones). Ver [DETAILS.md](DETAILS.md) para detalles.
+
+---
+
 ## Formatos soportados
 
 | Formato | Notas |
@@ -83,21 +98,6 @@ Trama crea una carpeta `trama-doc/` **al lado de tu manuscrito**, no en una carp
 ```
 
 Lo abrís en Finder, lo versionás con git junto al libro, lo compartís con tu editor — está donde esperás encontrarlo, no escondido.
-
----
-
-## Instalación
-
-Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Es la única manera de usarlo con todas sus capacidades.
-
-```bash
-mkdir -p ~/.claude/skills
-git clone https://github.com/ChrisPiz/trama.git ~/.claude/skills/trama
-```
-
-Listo. La próxima vez que abras `claude` en una terminal, Trama está disponible. Mismo plan Pro/Max que ya pagás — sin costo extra.
-
-> ⚠️ **Claude Desktop / Claude.ai web** funcionan en modo limitado (auditor one-shot, sin historial entre sesiones). Ver [DETAILS.md](DETAILS.md) para detalles.
 
 ---
 
