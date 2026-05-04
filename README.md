@@ -30,6 +30,62 @@ Es un **auditor literal**, no un colaborador creativo. Solo te dice lo que ya es
 
 ---
 
+## Funcionalidades
+
+| Capacidad | Detalle |
+|---|---|
+| 🔍 **Búsqueda con citas** | Todas las menciones de un personaje, lugar u objeto, con texto verbatim + capítulo + línea. Búsquedas sub-ms incluso en libros de 500k palabras. |
+| 📖 **Character bible automatizado** | Extrae personajes, lugares y objetos del texto. Detecta relaciones familiares, atributos, frecuencia de aparición. Genera un scaffold markdown editable que podés completar. |
+| ⚠️ **Auditoría de atributos** | Detecta contradicciones explícitas: edad, ojos, pelo, altura, profesión, relaciones. Atribuye cada claim al dueño correcto (filtra "ojos de Elena" cuando Marta también está en el contexto). Excluye flashbacks ("cuando tenía 12 años") del audit principal. |
+| ⏰ **Línea temporal** | Extrae 8 tipos de marcador: fechas absolutas, saltos relativos, días de la semana, estaciones, edades, próximos días, hedge temporal. Cruza con el audit para validar coherencia (¿la edad cuadra con los meses transcurridos?). |
+| 🧵 **Hilos narrativos** | Detecta preguntas abiertas, promesas (`prometió`, `juró`, `voy a`), personajes huérfanos (aparecen una vez con diálogo y no vuelven), objetos introducidos con énfasis y nunca usados. Marca cuáles se cerraron y cuáles no. |
+| 🔁 **Auditoría recurrente** | Cada vez que ejecutás una auditoría, Trama guarda un snapshot. Después podés comparar runs y ver qué cambió: entidades nuevas, hilos cerrados, hilos persistentes, cambios de frecuencia. |
+| 🧠 **Sagas grandes** | Para manuscritos >150k palabras o multi-volumen, orquesta análisis paralelo por arco/personaje/dimensión. Agrega los hallazgos en un reporte único. |
+| 📁 **Multi-formato** | Lee `.txt`, `.md`, `.docx`, `.rtf`, o carpetas con varios archivos en orden alfabético. |
+| 🌐 **Bilingüe ES/EN** | Detecta el idioma automáticamente. Patrones específicos para capítulos, marcadores temporales, dialog tags y atributos en cada idioma. |
+| 🗺️ **Mapeo línea → capítulo** | Toda cita lleva capítulo + línea. Encontrás el pasaje exacto sin abrir el manuscrito. |
+| 🔍 **Búsqueda con acentos** | `anos` encuentra `años`, `marta` encuentra `Marta`. No te preocupes por mayúsculas ni tildes. |
+| 🔄 **Auto-update** | Te avisa cuando hay nuevas versiones disponibles en GitHub (máximo una vez al día). |
+
+---
+
+## Formatos soportados
+
+| Formato | Notas |
+|---------|-------|
+| `.txt`, `.md` | Lectura directa |
+| `.docx` | Vía pandoc o python-docx |
+| `.rtf` | Vía pandoc o textutil (macOS) |
+| Carpeta con varios archivos | Concatena en orden alfabético — útil para sagas con un archivo por libro |
+
+Para **Pages** o **Google Docs**: exportá primero a Word o Markdown.
+
+**PDF no está soportado** — la extracción tiene demasiada pérdida para mantener citas exactas. Si tu manuscrito está solo en PDF, exportá a Word primero.
+
+---
+
+## Dónde quedan los archivos
+
+Trama crea una carpeta `trama-doc/` **al lado de tu manuscrito**, no en una carpeta oculta. Si auditás `/Users/yo/Documents/novela.docx`:
+
+```
+/Users/yo/Documents/
+├── novela.docx              ← tu manuscrito
+└── trama-doc/
+    └── novela/              ← workspace, todo visible aquí
+        ├── manuscript.txt   # versión normalizada del texto
+        ├── chapters.tsv     # mapa de capítulos
+        ├── entities.tsv     # personajes/lugares/objetos detectados
+        ├── timeline.tsv     # marcadores temporales
+        ├── threads.tsv      # hilos sin resolver
+        ├── runs/            # snapshots por fecha
+        └── audit-log.tsv    # historial de auditorías
+```
+
+Lo abrís en Finder, lo versionás con git junto al libro, lo compartís con tu editor — está donde esperás encontrarlo, no escondido.
+
+---
+
 ## Instalación
 
 Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Es la única manera de usarlo con todas sus capacidades.
@@ -80,13 +136,25 @@ Claude: 🟡 edad de Marta — 3 afirmaciones, severidad=soft
         Posiblemente coherente, depende del salto narrativo.
 ```
 
-Trama crea una carpeta `trama-doc/` **al lado de tu manuscrito** con todos los reportes, character bible, línea temporal, etc. Visible, abrible en Finder, versionable junto a tu libro.
+---
+
+## Limitaciones honestas
+
+- **Pronombres no resueltos**: "Ella entró" después de "Elena llegó" probablemente refiere a Elena, pero Trama no resuelve pronombres. Te pide confirmación si es relevante.
+- **Inconsistencias implícitas**: subtexto, tono, atmósfera quedan fuera. Solo detecta contradicciones explícitas con citas directas.
+- **Prosa muy metafórica**: puede haber falsos positivos en marcadores temporales ("hace mil años que no te veo"). Te muestra el match crudo y dejás vos que decida.
+- **Personajes referidos solo por descripción** ("el viejo del faro") no aparecen en el extractor.
+- **Apodos**: "Marta" y "Martita" cuentan como entidades distintas. Podés registrarlos manualmente como aliases para que se fusionen.
+- **Manuscritos sin marcadores de capítulo**: las citas usan solo número de línea.
+- **Cambios deliberados** (un personaje envejece entre tomos, cambia de profesión): podés registrarlos como excepciones para que el audit los respete.
+
+Trama te dice qué encontró, qué no encontró, y qué no puede saber. Nunca infla certezas.
 
 ---
 
 ## Más detalles
 
-¿Querés saber cómo funciona por dentro, qué archivos crea, cómo correrlo en cron, o qué hace cuando el manuscrito tiene 500k palabras? → Ver [DETAILS.md](DETAILS.md).
+¿Querés saber cómo correrlo en cron, qué hace en Claude.ai vs Claude Code, qué archivos crea por dentro, o cómo configurar variables de entorno? → Ver [DETAILS.md](DETAILS.md).
 
 ---
 
