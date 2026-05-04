@@ -1,241 +1,243 @@
-![Trama — auditor de continuidad narrativa para manuscritos](assets/header.png)
+![Trama — narrative continuity auditor for manuscripts](assets/header.png)
 
 # Trama
 
-> *Trama* en español tiene doble sentido: el argumento de la historia + el hilo transversal del tejido. Hay que auditar ambos para que la novela se sostenga.
+🌐 **English** (you are here) · [Español](README-es.md)
 
-Auditor de continuidad para tu novela. Le apuntas al manuscrito y te responde preguntas sobre lo que ya escribiste, con **citas exactas** (capítulo, línea, texto verbatim).
+> *Trama* in Spanish carries a double meaning: the plot of a story + the transversal thread of woven fabric. Both need auditing for a novel to hold together.
 
----
-
-## ¿Qué te ayuda a hacer?
-
-- **Recordar todo lo que dijiste sobre un personaje, lugar u objeto** sin releer el manuscrito completo.
-- **Detectar contradicciones**: ¿la edad de Marta cuadra entre los capítulos? ¿el color de ojos cambió? ¿la cronología es coherente con los saltos de tiempo?
-- **Construir tu character bible automáticamente** a partir del texto: personajes, relaciones familiares, atributos detectados.
-- **Encontrar hilos sin cerrar**: promesas que un personaje hizo y nunca cumplió, preguntas planteadas y nunca respondidas, objetos introducidos con énfasis que nunca volvieron a aparecer (Chekhov's gun sin disparar).
-- **Mapear la línea temporal** del manuscrito y verificar que los saltos cuadren con la edad de los personajes y las estaciones.
-- **Comparar versiones**: cada vez que terminas un capítulo, puedes ver qué cambió desde la última auditoría — qué hilos nuevos abriste, cuáles cerraste.
-
-Funciona con manuscritos en **español e inglés**. Soporta sagas multi-volumen y libros largos.
-
-## ¿Qué NO hace?
-
-- Escribir, generar, continuar o reescribir prosa
-- Sugerir tramas, personajes o desarrollos
-- Criticar la calidad de tu escritura
-- Reemplazar a un editor humano de desarrollo
-
-Es un **auditor literal**, no un colaborador creativo. Solo te dice lo que ya está en tu texto.
+A continuity auditor for your novel. Point it at your manuscript and it answers questions about what you've already written, with **exact citations** (chapter, line, verbatim text).
 
 ---
 
-## Funcionalidades
+## What it helps you do
 
-| Capacidad | Detalle |
+- **Recall everything you said about a character, place, or object** without re-reading the entire manuscript.
+- **Detect contradictions**: does Marta's age add up across chapters? did the eye color change? is the chronology consistent with the time jumps?
+- **Build your character bible automatically** from the text: characters, family relationships, detected attributes.
+- **Find loose threads**: promises a character made and never kept, questions raised and never answered, objects introduced with emphasis that never reappeared (Chekhov's gun unfired).
+- **Map the manuscript's timeline** and verify that jumps line up with character ages and seasons.
+- **Compare versions**: every time you finish a chapter, see what changed since the last audit — which threads you opened, which you closed.
+
+Works with manuscripts in **Spanish and English**. Supports multi-volume sagas and long books.
+
+## What it does NOT do
+
+- Write, generate, continue, or rewrite prose
+- Suggest plots, characters, or developments
+- Critique the quality of your writing
+- Replace a human developmental editor
+
+It's a **literal auditor**, not a creative collaborator. It only tells you what is already in your text.
+
+---
+
+## Features
+
+| Capability | Detail |
 |---|---|
-| 🔍 **Búsqueda con citas** | Todas las menciones de un personaje, lugar u objeto, con texto verbatim + capítulo + línea. Búsquedas sub-ms incluso en libros de 500k palabras. |
-| 📖 **Character bible automatizado** | Extrae personajes, lugares y objetos del texto. Detecta relaciones familiares, atributos, frecuencia de aparición. Genera un scaffold markdown editable que puedes completar. |
-| ⚠️ **Auditoría de atributos** | Detecta contradicciones explícitas: edad, ojos, pelo, altura, profesión, relaciones. Atribuye cada claim al dueño correcto (filtra "ojos de Elena" cuando Marta también está en el contexto). Excluye flashbacks ("cuando tenía 12 años") del audit principal. |
-| ⏰ **Línea temporal** | Extrae 8 tipos de marcador: fechas absolutas, saltos relativos, días de la semana, estaciones, edades, próximos días, hedge temporal. Cruza con el audit para validar coherencia (¿la edad cuadra con los meses transcurridos?). |
-| 🧵 **Hilos narrativos** | Detecta preguntas abiertas, promesas (`prometió`, `juró`, `voy a`), personajes huérfanos (aparecen una vez con diálogo y no vuelven), objetos introducidos con énfasis y nunca usados. Marca cuáles se cerraron y cuáles no. |
-| 🔁 **Auditoría recurrente** | Cada vez que ejecutas una auditoría, Trama guarda un snapshot. Después puedes comparar runs y ver qué cambió: entidades nuevas, hilos cerrados, hilos persistentes, cambios de frecuencia. |
-| 🧠 **Sagas grandes** | Para manuscritos >150k palabras o multi-volumen, orquesta análisis paralelo por arco/personaje/dimensión. Agrega los hallazgos en un reporte único. |
-| 📁 **Multi-formato** | Lee `.txt`, `.md`, `.docx`, `.rtf`, o carpetas con varios archivos en orden alfabético. |
-| 🌐 **Bilingüe ES/EN** | Detecta el idioma automáticamente. Patrones específicos para capítulos, marcadores temporales, dialog tags y atributos en cada idioma. |
-| 🗺️ **Mapeo línea → capítulo** | Toda cita lleva capítulo + línea. Encuentras el pasaje exacto sin abrir el manuscrito. |
-| 🔍 **Búsqueda con acentos** | `anos` encuentra `años`, `marta` encuentra `Marta`. No te preocupes por mayúsculas ni tildes. |
-| 🔄 **Auto-update** | Te avisa cuando hay nuevas versiones disponibles en GitHub (máximo una vez al día). |
+| 🔍 **Search with citations** | All mentions of a character, place, or object, with verbatim text + chapter + line. Sub-ms searches even on 500k-word books. |
+| 📖 **Automated character bible** | Extracts characters, places, and objects from the text. Detects family relationships, attributes, frequency of appearance. Generates an editable markdown scaffold you can complete. |
+| ⚠️ **Attribute audit** | Detects explicit contradictions: age, eyes, hair, height, profession, relationships. Attributes each claim to the correct owner (filters out "Elena's eyes" when Marta is also in the context). Excludes flashbacks ("when she was 12 years old") from the main audit. |
+| ⏰ **Timeline** | Extracts 8 marker types: absolute dates, relative jumps, days of the week, seasons, ages, upcoming days, temporal hedge. Cross-checks with the audit to validate coherence (does the age line up with the months elapsed?). |
+| 🧵 **Narrative threads** | Detects open questions, promises (`promised`, `swore`, `going to`), orphan characters (appear once with dialogue and never return), objects introduced with emphasis and never used. Marks which were closed and which weren't. |
+| 🔁 **Recurring audit** | Every time you run an audit, Trama saves a snapshot. You can then compare runs and see what changed: new entities, closed threads, persistent threads, frequency changes. |
+| 🧠 **Large sagas** | For manuscripts >150k words or multi-volume, orchestrates parallel analysis by arc/character/dimension. Aggregates findings into a single report. |
+| 📁 **Multi-format** | Reads `.txt`, `.md`, `.docx`, `.rtf`, or folders with multiple files in alphabetical order. |
+| 🌐 **Bilingual ES/EN** | Auto-detects language. Specific patterns for chapters, temporal markers, dialog tags, and attributes in each language. |
+| 🗺️ **Line → chapter mapping** | Every citation carries chapter + line. Find the exact passage without opening the manuscript. |
+| 🔍 **Accent-insensitive search** | `anos` finds `años`, `marta` finds `Marta`. No need to worry about case or diacritics. |
+| 🔄 **Auto-update** | Notifies you when new versions are available on GitHub (at most once per day). |
 
 ---
 
-## Instalación
+## Installation
 
-Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Es la única manera de usarlo con todas sus capacidades.
+Trama runs in **[Claude Code](https://claude.com/claude-code)** (Anthropic's CLI). It's the only way to use it with full capabilities.
 
 ```bash
 mkdir -p ~/.claude/skills
 git clone https://github.com/ChrisPiz/trama.git ~/.claude/skills/trama
 ```
 
-Listo. La próxima vez que abras `claude` en una terminal, Trama está disponible. Mismo plan Pro/Max que ya pagas — sin costo extra.
+Done. The next time you open `claude` in a terminal, Trama is available. Same Pro/Max plan you already pay for — no extra cost.
 
-> ⚠️ **Claude Desktop / Claude.ai web** funcionan en modo limitado (auditor one-shot, sin historial entre sesiones). Ver [DETAILS.md](DETAILS.md) para detalles.
+> ⚠️ **Claude Desktop / Claude.ai web** work in limited mode (one-shot auditor, no history between sessions). See [DETAILS.md](DETAILS.md) for details.
 
 ---
 
-## Formatos soportados
+## Supported formats
 
-| Formato | Notas |
+| Format | Notes |
 |---------|-------|
-| `.txt`, `.md` | Lectura directa |
-| `.docx` | En macOS usa `textutil` (preinstalado, sin instalar nada). Cae a `pandoc` o `python-docx` si textutil falla |
-| `.rtf` | En macOS usa `textutil`. Cae a `pandoc` |
-| Carpeta con varios archivos | Concatena en orden alfabético — útil para sagas con un archivo por libro |
+| `.txt`, `.md` | Direct read |
+| `.docx` | On macOS uses `textutil` (preinstalled, nothing to install). Falls back to `pandoc` or `python-docx` if textutil fails |
+| `.rtf` | On macOS uses `textutil`. Falls back to `pandoc` |
+| Folder with multiple files | Concatenates in alphabetical order — useful for sagas with one file per book |
 
-En macOS, **no necesitas instalar nada** para `.docx` y `.rtf` — Trama usa la herramienta nativa de macOS (`textutil`). En Linux instala `pandoc` (`brew install pandoc` / `apt install pandoc`).
+On macOS, **you don't need to install anything** for `.docx` and `.rtf` — Trama uses the native macOS tool (`textutil`). On Linux, install `pandoc` (`brew install pandoc` / `apt install pandoc`).
 
-Para **Pages** o **Google Docs**: exporta primero a Word o Markdown.
+For **Pages** or **Google Docs**: export to Word or Markdown first.
 
-**PDF no está soportado** — la extracción tiene demasiada pérdida para mantener citas exactas. Si tu manuscrito está solo en PDF, exporta a Word primero.
+**PDF is not supported** — the extraction loses too much to maintain exact citations. If your manuscript is only in PDF, export to Word first.
 
 ---
 
-## Dónde quedan los archivos
+## Where files live
 
-Trama crea una carpeta `trama-doc/` **al lado de tu manuscrito**, no en una carpeta oculta. Si auditas `/Users/yo/Documents/novela.docx`:
+Trama creates a `trama-doc/` folder **next to your manuscript**, not in a hidden directory. If you audit `/Users/me/Documents/novel.docx`:
 
 ```
-/Users/yo/Documents/
-├── novela.docx              ← tu manuscrito
+/Users/me/Documents/
+├── novel.docx              ← your manuscript
 └── trama-doc/
-    └── novela/              ← workspace, todo visible aquí
-        ├── manuscript.txt   # versión normalizada del texto
-        ├── chapters.tsv     # mapa de capítulos
-        ├── entities.tsv     # personajes/lugares/objetos detectados
-        ├── timeline.tsv     # marcadores temporales
-        ├── threads.tsv      # hilos sin resolver
-        ├── runs/            # snapshots por fecha
-        └── audit-log.tsv    # historial de auditorías
+    └── novel/              ← workspace, everything visible here
+        ├── manuscript.txt   # normalized text version
+        ├── chapters.tsv     # chapter map
+        ├── entities.tsv     # detected characters/places/objects
+        ├── timeline.tsv     # temporal markers
+        ├── threads.tsv      # unresolved threads
+        ├── runs/            # snapshots by date
+        └── audit-log.tsv    # audit history
 ```
 
-Lo abres en Finder, lo versionas con git junto al libro, lo compartes con tu editor — está donde esperas encontrarlo, no escondido.
+Open it in Finder, version it with git alongside the book, share it with your editor — it's where you expect to find it, not hidden.
 
 ---
 
-## Cómo se usa
+## How to use
 
-Una vez instalado, háblale a Claude Code en lenguaje natural:
+Once installed, talk to Claude Code in natural language:
 
 ```
-Tú:    Audita /Users/yo/Documents/mi-novela.docx
+You:    Audit /Users/me/Documents/my-novel.docx
 
-Claude: ✓ Manuscrito listo: 87.432 palabras, 18 capítulos.
-        ¿Qué quieres revisar?
+Claude: ✓ Manuscript ready: 87,432 words, 18 chapters.
+        What do you want to review?
 
-Tú:    ¿Qué he dicho sobre Elena?
+You:    What have I said about Elena?
 
-Claude: Sobre Elena: 7 menciones en 5 capítulos.
+Claude: About Elena: 7 mentions across 5 chapters.
 
-        Capítulo 1 — línea 5
-        > Su madre Elena entró en la cocina sin tocar.
+        Chapter 1 — line 5
+        > Her mother Elena entered the kitchen without knocking.
 
-        Capítulo 4 — línea 230
-        > Los ojos verdes de Elena la miraban con preocupación.
+        Chapter 4 — line 230
+        > Elena's green eyes looked at her with concern.
 
         [...]
 
-Tú:    ¿La edad de Marta es consistente?
+You:    Is Marta's age consistent?
 
-Claude: 🟡 edad de Marta — 3 afirmaciones, severidad=soft
+Claude: 🟡 Marta's age — 3 statements, severity=soft
 
-        L23 · Capítulo 2: La carta
-          [34] > Marta tenía 34 años cuando empezó todo.
-        L1843 · Capítulo 5: La carta
-          [36] > Marta tenía ahora 36 años.
+        L23 · Chapter 2: The letter
+          [34] > Marta was 34 when it all began.
+        L1843 · Chapter 5: The letter
+          [36] > Marta was now 36.
 
-        Δt narrativo entre citas: ~3 años. Diferencia de edad: 2 años.
-        Posiblemente coherente, depende del salto narrativo.
+        Narrative Δt between citations: ~3 years. Age difference: 2 years.
+        Possibly coherent, depends on the narrative jump.
 ```
 
 ---
 
-## Qué decirle a Claude
+## What to say to Claude
 
-Frases naturales que activan cada funcionalidad. No tienes que memorizarlas — si dudas, pregúntale a Claude qué puede hacer con tu manuscrito.
+Natural phrases that trigger each feature. You don't have to memorize them — if in doubt, ask Claude what it can do with your manuscript.
 
-### Empezar
-- `audita /Users/yo/Documents/novela.docx`
-- `quiero auditar mi novela en /ruta/al/libro.md`
-- `revisa la carpeta /Users/yo/saga/` (multi-volumen)
+### Get started
+- `audit /Users/me/Documents/novel.docx`
+- `I want to audit my novel at /path/to/book.md`
+- `review the folder /Users/me/saga/` (multi-volume)
 
-### Buscar con citas
-- `qué he dicho sobre Elena`
-- `todas las menciones de la pistola`
-- `dónde aparece el faro`
-- `busca la frase "el rojo del atardecer"`
-- `cuántas veces aparece "silencio"`
+### Search with citations
+- `what have I said about Elena`
+- `all mentions of the gun`
+- `where does the lighthouse appear`
+- `find the phrase "the red of the sunset"`
+- `how many times does "silence" appear`
 
 ### Character bible
-- `construye el character bible`
-- `extrae personajes y lugares`
-- `qué sabemos de Marta`
-- `relaciones familiares de los personajes`
-- `quiénes son los personajes principales`
+- `build the character bible`
+- `extract characters and places`
+- `what do we know about Marta`
+- `family relationships of the characters`
+- `who are the main characters`
 
-### Auditoría de atributos (contradicciones)
-- `es consistente la edad de Marta`
-- `qué color de ojos tiene Elena en el libro`
-- `revisa la profesión de Carmen`
-- `audita todos los atributos de los personajes`
-- `chequea si la altura de X cuadra entre capítulos`
+### Attribute audit (contradictions)
+- `is Marta's age consistent`
+- `what eye color does Elena have in the book`
+- `check Carmen's profession`
+- `audit all character attributes`
+- `check whether X's height adds up across chapters`
 
-### Línea temporal
-- `mapa temporal del libro`
-- `cronología del primer acto`
-- `cuánto tiempo pasa entre el Cap 3 y el Cap 8`
-- `verifica que las edades cuadren con los saltos temporales`
-- `marcadores temporales del manuscrito`
+### Timeline
+- `timeline of the book`
+- `chronology of the first act`
+- `how much time passes between Ch 3 and Ch 8`
+- `verify that ages line up with the time jumps`
+- `temporal markers in the manuscript`
 
-### Hilos sin resolver
-- `qué quedó sin resolver`
-- `hilos abiertos`
-- `qué promesas hicieron los personajes y no cumplieron`
-- `preguntas sin respuesta en el libro`
-- `personajes huérfanos` (aparecen una vez y no vuelven)
-- `objetos sin disparar` (Chekhov's gun)
+### Loose threads
+- `what was left unresolved`
+- `open threads`
+- `what promises did characters make and not keep`
+- `unanswered questions in the book`
+- `orphan characters` (appear once and never return)
+- `unfired objects` (Chekhov's gun)
 
-### Auditoría recurrente / diff
-- `qué cambió desde la última auditoría`
-- `compara con la versión anterior`
-- `corre la auditoría de nuevo`
-- `tendencias de hilos abiertos`
-- `muéstrame el log de auditorías`
-- `audita y guarda este run con la nota "post Cap 12"`
+### Recurring audit / diff
+- `what changed since the last audit`
+- `compare with the previous version`
+- `re-run the audit`
+- `trends of open threads`
+- `show me the audit log`
+- `audit and save this run with the note "post Ch 12"`
 
-### Listar / stats
-- `cuántas palabras tiene el libro`
-- `lista los capítulos`
-- `cuántas palabras tiene cada capítulo`
-- `cuál es el capítulo más largo`
+### List / stats
+- `how many words does the book have`
+- `list the chapters`
+- `how many words does each chapter have`
+- `which chapter is the longest`
 
-### Saga / libro grande
-- `audita toda la saga`
-- `auditoría completa con subagentes paralelos`
-- `audita el manuscrito completo` (para >150k palabras)
+### Saga / large book
+- `audit the entire saga`
+- `full audit with parallel subagents`
+- `audit the complete manuscript` (for >150k words)
 
-### Reporte final
-- `genera el reporte de auditoría completo`
-- `dame un resumen para mandar al editor`
-- `crea el character bible en markdown editable`
+### Final report
+- `generate the complete audit report`
+- `give me a summary to send to the editor`
+- `create the character bible in editable markdown`
 
-### No olvides
-- Trama **siempre cita textual** — capítulo + línea + verbatim
-- Si Claude no encuentra algo, te lo dice (no inventa)
-- Puedes pedir confirmación si la respuesta es ambigua ("¿te refieres a Elena la madre o Elena la prima?")
-
----
-
-## Limitaciones honestas
-
-- **Pronombres no resueltos**: "Ella entró" después de "Elena llegó" probablemente refiere a Elena, pero Trama no resuelve pronombres. Te pide confirmación si es relevante.
-- **Inconsistencias implícitas**: subtexto, tono, atmósfera quedan fuera. Solo detecta contradicciones explícitas con citas directas.
-- **Prosa muy metafórica**: puede haber falsos positivos en marcadores temporales ("hace mil años que no te veo"). Te muestra el match crudo y tú decides.
-- **Personajes referidos solo por descripción** ("el viejo del faro") no aparecen en el extractor.
-- **Apodos**: "Marta" y "Martita" cuentan como entidades distintas. Puedes registrarlos manualmente como aliases para que se fusionen.
-- **Manuscritos sin marcadores de capítulo**: las citas usan solo número de línea.
-- **Cambios deliberados** (un personaje envejece entre tomos, cambia de profesión): puedes registrarlos como excepciones para que el audit los respete.
-
-Trama te dice qué encontró, qué no encontró, y qué no puede saber. Nunca infla certezas.
+### Don't forget
+- Trama **always cites verbatim** — chapter + line + verbatim
+- If Claude can't find something, it tells you (no inventing)
+- You can ask for confirmation if the answer is ambiguous ("do you mean Elena the mother or Elena the cousin?")
 
 ---
 
-## Más detalles
+## Honest limitations
 
-¿Quieres saber cómo correrlo en cron, qué hace en Claude.ai vs Claude Code, qué archivos crea por dentro, o cómo configurar variables de entorno? → Ver [DETAILS.md](DETAILS.md).
+- **Unresolved pronouns**: "She entered" after "Elena arrived" probably refers to Elena, but Trama doesn't resolve pronouns. It asks you for confirmation when relevant.
+- **Implicit inconsistencies**: subtext, tone, atmosphere are out of scope. Only explicit contradictions with direct citations are detected.
+- **Highly metaphorical prose**: there can be false positives in temporal markers ("haven't seen you in a thousand years"). It shows you the raw match and you decide.
+- **Characters referred to only by description** ("the old man at the lighthouse") don't appear in the extractor.
+- **Nicknames**: "Marta" and "Martita" count as distinct entities. You can register them manually as aliases so they merge.
+- **Manuscripts without chapter markers**: citations use line number only.
+- **Deliberate changes** (a character ages between volumes, changes profession): you can register them as exceptions so the audit respects them.
+
+Trama tells you what it found, what it didn't find, and what it can't know. Never inflates certainty.
 
 ---
 
-## Licencia
+## More details
 
-MIT. Ver [LICENSE](LICENSE).
+Want to know how to run it on cron, what happens in Claude.ai vs Claude Code, what files it creates internally, or how to configure environment variables? → See [DETAILS.md](DETAILS.md).
+
+---
+
+## License
+
+MIT. See [LICENSE](LICENSE).
