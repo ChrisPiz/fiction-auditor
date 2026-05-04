@@ -53,14 +53,19 @@ Es un **auditor literal**, no un colaborador creativo. Solo te dice lo que ya es
 
 ## Instalación
 
-Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Lo instalas como plugin — un comando dentro de Claude Code:
+Trama funciona en **[Claude Code](https://claude.com/claude-code)** (CLI de Anthropic). Lo instalas como plugin — dos comandos dentro de Claude Code, **córrelos en orden** (el segundo necesita que el primero termine):
 
+**Paso 1 — registra el marketplace:**
 ```
 /plugin marketplace add ChrisPiz/trama
+```
+
+**Paso 2 — instala el plugin:**
+```
 /plugin install trama@trama
 ```
 
-Listo. Trama queda disponible al instante, con `/plugin update trama` para actualizar. Mismo plan Pro/Max que ya pagas — sin costo extra.
+Listo. Trama queda disponible al instante. Actualizas después con `/plugin update trama`. Mismo plan Pro/Max que ya pagas — sin costo extra.
 
 <details>
 <summary>Instalación manual (sin plugin manager)</summary>

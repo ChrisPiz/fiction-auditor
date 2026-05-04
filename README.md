@@ -53,14 +53,19 @@ It's a **literal auditor**, not a creative collaborator. It only tells you what 
 
 ## Installation
 
-Trama runs in **[Claude Code](https://claude.com/claude-code)** (Anthropic's CLI). Install it as a plugin — one command inside Claude Code:
+Trama runs in **[Claude Code](https://claude.com/claude-code)** (Anthropic's CLI). Install it as a plugin — two slash commands inside Claude Code, **run them in order** (the second one needs the first to finish first):
 
+**Step 1 — register the marketplace:**
 ```
 /plugin marketplace add ChrisPiz/trama
+```
+
+**Step 2 — install the plugin:**
+```
 /plugin install trama@trama
 ```
 
-Done. Trama is available immediately, with `/plugin update trama` for upgrades. Same Pro/Max plan you already pay for — no extra cost.
+Done. Trama is available immediately. Update later with `/plugin update trama`. Same Pro/Max plan you already pay for — no extra cost.
 
 <details>
 <summary>Manual install (without plugin manager)</summary>
